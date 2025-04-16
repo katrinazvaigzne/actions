@@ -1,0 +1,89 @@
+# This pipeline is triggered manually/automatically
+name: Test Workflow
+
+on: 
+  workflow_dispatch:  
+    inputs:
+      environment:
+        description: 'Which environment to deploy to?'
+        required: true
+        type: choice
+        options:
+          - testing
+  workflow_run:
+    workflows: ["Test Trigger"]
+    types:
+      - completed
+  
+jobs:
+  env-job:
+    runs-on: ubuntu-latest
+    outputs:
+      selected_environment: ${{ steps.set-env.outputs.environment }}
+      trigger_type: ${{ steps.set-env.outputs.trigger_type }}
+    
+    steps:
+    - name: Ensure branch is default
+      id: check-branch
+      run: |
+        if [[ "${{ github.ref }}" != "refs/heads/develop" ]]; then
+          echo "This workflow can only be triggered from the default branch (develop)."
+          exit 1
+        fi
+      shell: bash
+      
+    - name: Set environment variable and trigger type based on event
+      id: set-env
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          # Manual trigger: Use provided input environment
+          echo "Detected manual trigger."
+          if [[ -z "${{ github.event.inputs.environment }}" ]]; then
+            echo "Error: Environment must be specified for manual triggers."
+            exit 1
+          fi
+          echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          echo "trigger_type=manual" >> $GITHUB_ENV
+          echo "trigger_type=manual" >> $GITHUB_OUTPUT
+        else
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            if [[ "${{ github.event.workflow.name }}" == "Test Trigger" ]]; then
+              echo "Detected trigger from Test workflow."
+              echo "environment=testing" >> $GITHUB_ENV
+              echo "environment=testing" >> $GITHUB_OUTPUT
+            else
+              echo "Error: Unknown triggering workflow."
+              exit 1
+            fi
+            echo "trigger_type=scheduled" >> $GITHUB_ENV
+            echo "trigger_type=scheduled" >> $GITHUB_OUTPUT
+          else
+            echo "Error: Unknown event type."
+            exit 1
+          fi
+        fi
+
+    # Echo the selected environment to the logs
+    - name: Echo Selected Environment - ${{ env.environment }}
+      run: echo "Selected environment is ${{ env.environment }}"
+
+    - name: Echo used branch - ${{ env.environment }}
+      run: echo "Branch used during deployment is ${{ vars.BRANCH_NAME }}"
+      
+    - name: Deployment Type - ${{ env.trigger_type }}
+      run: echo "Deployment type in this job is ${{ env.trigger_type }}"
+      
+  build-job:
+   needs: env-job
+   runs-on: ubuntu-latest
+
+   # Dynamically select the environment to deploy to
+   environment: ${{ needs.env-job.outputs.selected_environment }}
+
+   steps:
+    - name: Checkout code - ${{ needs.env-job.outputs.selected_environment }}
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ vars.BRANCH_NAME }}
+      
