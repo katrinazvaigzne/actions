@@ -1,0 +1,21 @@
+name: Test Trigger
+
+on:
+  schedule:
+    - cron: '00 23 * * 3'    # Scheduled to run on Wednesday at 23:00 UTC, which is Thursday, 01:00 CET for I3
+
+jobs:
+  trigger-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set environment and trigger test
+      run: |
+          echo "Setting environment as testing and trigger type as scheduled"
+          echo "environment=testing" >> $GITHUB_ENV
+          echo "trigger_type=scheduled" >> $GITHUB_ENV
+
+    - name: Trigger experiment workflow
+      run: |
+          echo "Triggering experiment workflow with environment=${{ env.environment }} and trigger_type=${{ env.trigger_type }}"
+          # You can trigger your common experiment workflow manually by using curl or other methods if needed.
