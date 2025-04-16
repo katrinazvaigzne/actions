@@ -2,7 +2,7 @@ name: Test Trigger
 
 on:
   schedule:
-    - cron: '00 23 * * 3'    # Scheduled to run on Wednesday at 23:00 UTC, which is Thursday, 01:00 CET for I3
+    - cron: '45 14 * * 3'
 
 jobs:
   trigger-test:
