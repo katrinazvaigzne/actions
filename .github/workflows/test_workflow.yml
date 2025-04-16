@@ -68,7 +68,7 @@ jobs:
     - name: Echo Selected Environment - ${{ env.environment }}
       run: echo "Selected environment is ${{ env.environment }}"
 
-    - name: Echo used branch - ${{ env.environment }}
+    - name: Echo used branch - ${{ vars.BRANCH_NAME }}
       run: echo "Branch used during deployment is ${{ vars.BRANCH_NAME }}"
       
     - name: Deployment Type - ${{ env.trigger_type }}
