@@ -73,6 +73,11 @@ jobs:
       
     - name: Deployment Type - ${{ env.trigger_type }}
       run: echo "Deployment type in this job is ${{ env.trigger_type }}"
+
+    - name: Last commit hash of ${{ vars.BRANCH_NAME }} branch
+      run: |
+        COMMIT_HASH=$(git ls-remote https://github.com/${{ github.repository }} refs/heads/${{ vars.BRANCH_NAME }} | cut -f1)
+        echo "Latest commit on ${{ vars.BRANCH_NAME }}: $COMMIT_HASH"
       
   build-job:
    needs: env-job
