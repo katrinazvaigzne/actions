@@ -63,7 +63,15 @@ jobs:
             exit 1
           fi
         fi
+      
+  info-job:
+    needs: env-job
+    runs-on: ubuntu-latest
 
+    # Dynamically select the environment to deploy to
+    environment: ${{ needs.env-job.outputs.selected_environment }}
+
+    steps:
     # Echo the selected environment to the logs
     - name: Echo Selected Environment - ${{ env.environment }}
       run: echo "Selected environment is ${{ env.environment }}"
@@ -78,7 +86,8 @@ jobs:
       run: |
         COMMIT_HASH=$(git ls-remote https://github.com/${{ github.repository }} refs/heads/${{ vars.BRANCH_NAME }} | cut -f1)
         echo "Latest commit on ${{ vars.BRANCH_NAME }}: $COMMIT_HASH"
-      
+
+  
   build-job:
    needs: env-job
    runs-on: ubuntu-latest
