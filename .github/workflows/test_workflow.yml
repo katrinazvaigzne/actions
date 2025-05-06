@@ -72,6 +72,12 @@ jobs:
     environment: ${{ needs.env-job.outputs.selected_environment }}
 
     steps:
+    - name: Shallow checkout of develop branch
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+        ref: develop
+        
     # Echo the selected environment to the logs
     - name: Echo Selected Environment - ${{ needs.env-job.outputs.selected_environment }}
       run: echo "Selected environment is ${{ needs.env-job.outputs.selected_environment }}"
@@ -82,11 +88,11 @@ jobs:
     - name: Deployment Type - ${{ needs.env-job.outputs.trigger_type }}
       run: echo "Deployment type in this job is ${{ needs.env-job.outputs.trigger_type }}"
 
-    - name: Last commit hash and message of ${{ vars.BRANCH_NAME }} branch
+    - name: Echo last commit hash and message of ${{ vars.BRANCH_NAME }} branch
       run: |
-        COMMIT_HASH=$(git ls-remote https://github.com/${{ github.repository }} refs/heads/${{ vars.BRANCH_NAME }} | cut -f1)
-        echo "Latest commit on ${{ vars.BRANCH_NAME }}: $COMMIT_HASH"
-
+        git fetch origin ${{ vars.BRANCH_NAME }} --depth=1
+        echo "Last commit on ${{ vars.BRANCH_NAME }}:"
+        echo "$(git log -1 --pretty='format:%H - %B' FETCH_HEAD)"
   
   build-job:
    needs: env-job
