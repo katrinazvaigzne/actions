@@ -77,18 +77,17 @@ jobs:
       with:
         fetch-depth: 1
         ref: develop
-        
-    # Echo the selected environment to the logs
-    - name: Echo Selected Environment - ${{ needs.env-job.outputs.selected_environment }}
-      run: echo "Selected environment is ${{ needs.env-job.outputs.selected_environment }}"
 
-    - name: Echo used branch - ${{ vars.BRANCH_NAME }}
-      run: echo "Branch used during deployment is ${{ vars.BRANCH_NAME }}"
+    - name: Selected Environment - ${{ needs.env-job.outputs.selected_environment }}
+      run: echo "Selected environment is ${{ needs.env-job.outputs.selected_environment }}"
       
     - name: Deployment Type - ${{ needs.env-job.outputs.trigger_type }}
       run: echo "Deployment type in this job is ${{ needs.env-job.outputs.trigger_type }}"
 
-    - name: Echo last commit hash and message of ${{ vars.BRANCH_NAME }} branch
+    - name: Used branch - ${{ vars.BRANCH_NAME }}
+      run: echo "Branch used during deployment is ${{ vars.BRANCH_NAME }}"
+
+    - name: Last commit hash and message of ${{ vars.BRANCH_NAME }} branch
       run: |
         git fetch origin ${{ vars.BRANCH_NAME }} --depth=1
         echo "Last commit on ${{ vars.BRANCH_NAME }}:"
