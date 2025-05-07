@@ -105,6 +105,21 @@ jobs:
       uses: actions/checkout@v3
       with:
         ref: ${{ vars.BRANCH_NAME }}
+        
+    - name: Selected Environment - ${{ needs.env-job.outputs.selected_environment }}
+      run: echo "Selected environment is ${{ needs.env-job.outputs.selected_environment }}"
+      
+    - name: Deployment Type - ${{ needs.env-job.outputs.trigger_type }}
+      run: echo "Deployment type in this job is ${{ needs.env-job.outputs.trigger_type }}"
+
+    - name: Used branch - ${{ vars.BRANCH_NAME }}
+      run: echo "Branch used during deployment is ${{ vars.BRANCH_NAME }}"
+
+    - name: Last commit hash and message of ${{ vars.BRANCH_NAME }} branch
+      run: |
+        git fetch origin ${{ vars.BRANCH_NAME }} --depth=1
+        echo "Last commit on ${{ vars.BRANCH_NAME }}:"
+        echo "$(git log -1 --pretty='format:%H - %B' FETCH_HEAD)"
 
   dbpatch-job:
    needs: 
@@ -125,5 +140,14 @@ jobs:
       run: echo "Deploying to environment - ${{ needs.env-job.outputs.selected_environment }}"
       
     - name: Display trigger type - ${{ needs.env-job.outputs.trigger_type }}
-      run: echo "This deployment was triggered by ${{ needs.env-job.outputs.trigger_type }}"    
+      run: echo "This deployment was triggered by ${{ needs.env-job.outputs.trigger_type }}"
+
+    - name: Used branch - ${{ vars.BRANCH_NAME }}
+      run: echo "Branch used during deployment is ${{ vars.BRANCH_NAME }}"
+
+    - name: Last commit hash and message of ${{ vars.BRANCH_NAME }} branch
+      run: |
+        git fetch origin ${{ vars.BRANCH_NAME }} --depth=1
+        echo "Last commit on ${{ vars.BRANCH_NAME }}:"
+        echo "$(git log -1 --pretty='format:%H - %B' FETCH_HEAD)"
       
