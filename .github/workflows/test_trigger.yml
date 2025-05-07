@@ -2,7 +2,7 @@ name: Test Trigger
 
 on:
   schedule:
-    - cron: '45 14 * * 3'
+    - cron: '55 13 * * 3'
 
 jobs:
   trigger-test:
